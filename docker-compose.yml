@@ -1,0 +1,103 @@
+services:
+    laravel.test:
+        build:
+            context: './docker/8.4-alpine'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            - "21123:21"
+            - "21100-21110:21100-21110"
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            FTP_USER: '${FTP_USER}'
+            FTP_PASS: '${FTP_PASS}'
+            FTP_HOME: '${FTP_HOME}'
+        cap_add:
+            - SYS_ADMIN
+        volumes:
+            - '.:/app'
+        networks:
+            - larawy
+        depends_on:
+            - pgsql
+            - redis
+    pgsql:
+        image: 'postgres:17'
+        ports:
+            - '${FORWARD_DB_PORT}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - './docker/pgsql/data:/var/lib/postgresql/data'
+        networks:
+            - larawy
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
+    pgsql-log:
+        image: 'postgres:17'
+        ports:
+            - '${FORWARD_DB_LOG_PORT}:5432'
+        environment:
+            PGPASSWORD: '${DB_LOG_PASSWORD}'
+            POSTGRES_DB: '${DB_LOG_DATABASE}'
+            POSTGRES_USER: '${DB_LOG_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_LOG_PASSWORD}'
+        volumes:
+            - './docker/pgsql/data-log:/var/lib/postgresql/data'
+        networks:
+            - larawy
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_LOG_DATABASE}'
+                - '-U'
+                - '${DB_LOG_USERNAME}'
+            retries: 3
+            timeout: 5s
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - './docker/redis/data:/data'
+        networks:
+            - larawy
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+        command: [
+            "redis-server",
+            "--maxmemory", "2gb",
+            "--maxmemory-policy", "allkeys-lru"
+        ]
+networks:
+    larawy:
+        driver: bridge
