@@ -60,6 +60,7 @@
             "@php artisan ide:helper"
         ],
         "post-root-package-install": [
+            "@php artisan installation:post"
         ],
         "post-create-project-cmd": [
             "@php artisan storage:link --ansi"
