@@ -60,11 +60,8 @@
             "@php artisan ide:helper"
         ],
         "post-root-package-install": [
-            "@php -r \"copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php -r \"copy('.env.example', '.env');\"",
-            "@php artisan key:generate --ansi",
             "@php artisan storage:link --ansi"
         ],
         "dev": [
