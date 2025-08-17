@@ -60,10 +60,11 @@
             "@php artisan ide:helper"
         ],
         "post-root-package-install": [
-            "@php artisan installation:post"
+            "@php echo 'Welcome to Larawy! Please run `composer install` to set up your project.';"
         ],
         "post-create-project-cmd": [
-            "@php artisan storage:link --ansi"
+            "@php artisan storage:link --ansi",
+            "@php artisan installation:post"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
