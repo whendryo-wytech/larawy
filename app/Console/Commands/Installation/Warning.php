@@ -26,6 +26,6 @@ class Warning extends Command
     public function handle(): void
     {
         $this->warn('Run the following command to complete the installation:');
-        $this->line(str_repeat(chr(9), 3).'php artisan installation:post');
+        $this->line(str_repeat(chr(9), 3).'php artisan installation');
     }
 }
