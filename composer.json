@@ -60,7 +60,7 @@
             "@php artisan ide:helper"
         ],
         "post-root-package-install": [
-            "@php echo 'Welcome to Larawy! Please run `composer install` to set up your project.';"
+            "@php artisan about"
         ],
         "post-create-project-cmd": [
             "@php artisan storage:link --ansi",
